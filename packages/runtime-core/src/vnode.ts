@@ -41,6 +41,8 @@ function normalizeChildren(vnode, children) {
     type = ShapeFlags.TEXT_CHILDREN;
   }
 
+  // 这里是按位或的操作，将子节点的类型和当前节点的类型合并
+  // 让他能够标识chilren节点的类型
   vnode.shapeFlag = vnode.shapeFlag | type;
 }
 
