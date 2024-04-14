@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="../reactivity/dist/reactivity.global.js"></script>
+    <script>
+      let { reactive, effect } = VueReactivity;
+
+      let state = reactive({ name: "zhangsj", age: 20, list: [1, 2, 3, 4] });
+
+      effect(() => {
+        // 默认执行，获取代理数据，收集依赖
+        app.innerHTML = state.name + "====" + state.list[2];
+      });
+
+      setTimeout(() => {
+        state.name = "lis"; //修改数据，触发efffect
+        state.list.length = 1;
+      }, 1000);
+    </script>
+  </body>
+</html>

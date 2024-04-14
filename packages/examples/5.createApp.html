@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">1000</div>
+    <script src="../runtime-dom/dist/runtime-dom.global.js"></script>
+    <script>
+      let { createApp, h, reactive } = VueRuntimeDom;
+      let App = {
+        setup(props, context) {
+          let state = reactive({ name: "李四", flag: true });
+          // console.log("setup", props, context);
+          // return () => {
+          //   console.log("setup --- render");
+          // };
+          // return {
+          //   state,
+          // };
+          const fn = () => {
+            state.name = "王五";
+          };
+
+          setTimeout(() => {
+            state.flag = false;
+          }, 2000);
+
+          // if (state.flag) {
+          //   return () =>
+          //     h("div", { style: { color: "red" }, onClick: fn }, [
+          //       "hello",
+          //       h("span", "haha"),
+          //       state.name,
+          //     ]);
+          // } else {
+          //   return () => h("div", "wakakaka");
+          // }
+          return {
+            state,
+            fn,
+          };
+        },
+        render(proxy) {
+          // console.log("render function");
+          // console.log(this, proxy);
+          // return "12314";
+          // console.log(proxy.state);
+          // return h("div", { style: { color: "red" } }, [
+          //   "hello",
+          //   h("span", "haha"),
+          //   proxy.state.name,
+          // ]);
+
+          if (proxy.state.flag) {
+            return h(
+              "div",
+              { style: { color: "red" }, onClick: proxy.fn },
+              "hello 11"
+            );
+          } else {
+            // return h("div", "wakakaka");
+            return h(
+              "div",
+              { style: { color: "blue" }, onClick: proxy.fn },
+              "hello 11"
+            );
+          }
+        },
+      };
+      createApp(App, { name: "zs", age: 10 }).mount("#app");
+    </script>
+  </body>
+</html>

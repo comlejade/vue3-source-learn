@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="../reactivity/dist/reactivity.global.js"></script>
+    <script>
+      let { reactive, readonly, shallowReactive, shallowReadonly } =
+        VueReactivity;
+      let state = shallowReadonly({ name: "张三", list: { a: 20 } });
+      state.name = "里斯";
+      state.list.a = 300;
+      console.log(state.name);
+      console.log(state.list.a);
+    </script>
+  </body>
+</html>
