@@ -3,6 +3,8 @@ import { effect } from "@vue/reactivity";
 import { apiCreateApp } from "./apiCreateApp";
 import { createComponentInstance, setupComponent } from "./component";
 import { TEXT, cVnode } from "./vnode";
+import { getSequence } from "./getSequence";
+import { invokeArrayFns } from "./apiLifecycle";
 
 export const createRender = (renderOptionDOM) => {
   // 获取全部的DOM操作
@@ -22,7 +24,17 @@ export const createRender = (renderOptionDOM) => {
       // 需要创建一个 effect 在effect中调用render
       // 这样render方法中获取数去会收集这个effect
       // 属性改变重新执行r
+      // 组件的初始化
       if (!instance.isMounted) {
+        // 渲染之前
+        // 已将生命周期放在实例上
+        let { bm, m } = instance;
+
+        // 渲染之前，执行bm
+        if (bm) {
+          invokeArrayFns(bm);
+        }
+
         // 第一次加载
         // 获取到 render 的返回值
         // 组件实例
@@ -34,11 +46,22 @@ export const createRender = (renderOptionDOM) => {
         // console.log(subTree);
         // 渲染子树
         patch(null, subTree, container);
+        // 渲染完成
+        if (m) {
+          // 怎么执行生命周期钩子
+          invokeArrayFns(m);
+        }
         instance.isMounted = true;
       } else {
         // console.log("更新");
         // 更新操作
-        // 比对 旧和新
+        // 比对 旧和新\
+        let { u, bu } = instance;
+        // 更新之前
+        if (bu) {
+          invokeArrayFns(bu);
+        }
+
         let proxy = instance.proxy;
         // 旧的 vnode
         const prevTree = instance.subTree;
@@ -46,6 +69,10 @@ export const createRender = (renderOptionDOM) => {
         const nextTree = instance.render.call(proxy, proxy);
 
         patch(prevTree, nextTree, container);
+
+        if (u) {
+          invokeArrayFns(u);
+        }
       }
     });
   }
@@ -271,6 +298,10 @@ export const createRender = (renderOptionDOM) => {
         }
       }
       console.log(newIndexToPatchMap);
+
+      // 获取最长递增子序列
+      const increasingNewIndexSequence = getSequence(newIndexToPatchMap);
+      let j = increasingNewIndexSequence.length - 1;
       // 移动节点并且添加新增的元素
       // 倒序循环
       for (let i = toBePatched - 1; i >= 0; i--) {
@@ -285,7 +316,13 @@ export const createRender = (renderOptionDOM) => {
           patch(null, child, el, ancher);
         } else {
           // 对于已经存在的元素，逐个插入到对应的位置
-          hostInsert(child.el, el, ancher);
+          if (i !== increasingNewIndexSequence[j]) {
+            // 和最长递增子序列中的元素不相等就插入
+            hostInsert(child.el, el, ancher);
+          } else {
+            // 相等就直接往前走
+            j--;
+          }
         }
       }
     }

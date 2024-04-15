@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="../packages/runtime-dom/dist/runtime-dom.global.js"></script>
+    <script>
+      let {
+        createApp,
+        h,
+        reactive,
+        onMounted,
+        onBeforeMount,
+        onUpdated,
+        onBeforeUpdate,
+        getCurrentInstance,
+      } = VueRuntimeDom;
+
+      let app = {
+        setup() {
+          let state = reactive({ num: 1 });
+
+          onBeforeMount(() => {
+            console.log("加载之前");
+          });
+
+          onMounted(() => {
+            let instance = getCurrentInstance();
+            console.log("加载之后", instance);
+          });
+
+          onBeforeUpdate(() => {
+            console.log("更新之前");
+          });
+
+          onUpdated(() => {
+            console.log("数据更新完成");
+          });
+
+          setTimeout(() => {
+            state.num++;
+          }, 2000);
+
+          return () => h("div", { style: { color: "red" } }, state.num);
+        },
+      };
+
+      /**
+       * vue3 的生命周期都在当前组件实例上
+       * vue3的生命周期要在setup中使用
+       * 我们通过每个组件，在调用这个setup之前产生一个全局的组件实例
+       * 在setup中使用生命周期 指向当前组件
+       * setup执行完毕，把全局组件变成null
+       * */
+
+      createApp(app).mount("#app");
+    </script>
+  </body>
+</html>

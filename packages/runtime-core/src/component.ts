@@ -1,6 +1,16 @@
 import { ShapeFlags, isFunction, isObject } from "@vue/shared";
 import { componentPublicInstance } from "./componentPublicInstance";
 
+export const getCurrentInstance = () => {
+  // 获取当前实例
+  return currentInstance;
+};
+
+export const setCurrentInstance = (target) => {
+  // 设置当前实例
+  currentInstance = target;
+};
+
 // 创建组件实例
 export const createComponentInstance = (vnode) => {
   // console.log(vnode);
@@ -37,6 +47,7 @@ export const setupComponent = (instance) => {
   }
 };
 
+export let currentInstance;
 function setUpStateComponent(instance) {
   // setup 返回值可以是对象或函数
   // 对象 -> state，函数 -> render
@@ -52,8 +63,13 @@ function setUpStateComponent(instance) {
   // 看一下有没有 setup render
   if (setup) {
     // 处理参数
+    // 在 setup 之前，创建全局的 currentInstance
+    currentInstance = instance;
+    // console.log("currentInstance", currentInstance);
     let setupContext = createContext(instance);
     let setupResult = setup(instance.props, setupContext);
+    // setup执行完毕，
+    currentInstance = null;
     // setup 返回值可能是对象或者函数
     // 如果是对象就是值，如果是函数就是render
     handlerSetupResult(instance, setupResult);
@@ -61,10 +77,12 @@ function setUpStateComponent(instance) {
     // 没有 setup
     // 调用 render
     finishComponentSetup(instance);
+    if (Component.render) {
+      Component.render(instance.proxy);
+    }
   }
   // 处理render
   // 代理
-  Component.render(instance.proxy);
   //   instance.render()
 }
 

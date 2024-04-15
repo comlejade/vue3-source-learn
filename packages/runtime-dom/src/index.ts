@@ -29,4 +29,3 @@ export const createApp = (rootComponent, rootProps) => {
 export { renderOptionDOM };
 
 export * from "@vue/runtime-core";
-export * from "@vue/reactivity";
